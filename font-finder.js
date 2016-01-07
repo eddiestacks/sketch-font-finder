@@ -8,7 +8,7 @@
 function captureAllFonts(){
     var doc = context.document,
         page = {},
-        layers = [],
+        artboards = [],
         layer = {}
         fontUsed = '',
         fontMap = {},
@@ -17,11 +17,11 @@ function captureAllFonts(){
     // Loop through all pages
     for (var i=0; i < doc.pages().count(); i++) {
         page = doc.pages().objectAtIndex(i);
-        layers = page.children();
+        artboards = page.children();
 
         // Loop through all children of current page
-        for (var j=0; j < layers.count(); j++) {
-            layer = layers.objectAtIndex(j);
+        for (var j=0; j < artboards.count(); j++) {
+            layer = artboards.objectAtIndex(j);
 
             // If text layer, save to map
             if(layer.class() == "MSTextLayer") {
@@ -71,7 +71,8 @@ function alertMessage(msg) {
 function findTargetFont(targetFont) {
     var doc = context.document,
         page = {},
-        layers = [],
+        artboards = [],
+        artboardName = '',
         layer = {}
         fontUsed = '',
         layerName = '',
@@ -82,32 +83,38 @@ function findTargetFont(targetFont) {
 
     for (var i = 0; i < doc.pages().count(); i++) {
 
-        // Get the current page and its layers
+        // Get the current page and its artboards
         page = doc.pages().objectAtIndex(i);
-        layers = page.children();
+        artboards = page.children();
 
         // Loop through all children of the page
-        for (var j = 0; j < layers.count(); j++) {
+        for (var j = 0; j < artboards.count(); j++) {
 
             // Get the current layer
-            layer = layers.objectAtIndex(j);
+            layer = artboards.objectAtIndex(j);
+
+            // Store the most recent artboard name
+            if(layer.class() == "MSArtboardGroup") {
+                artboardName = [layer name];
+            }
 
             // Check if the layer is a text layer
             if(layer.class() == "MSTextLayer") {
                 fontUsed = [layer fontPostscriptName];
                 if (fontUsed == targetFont) {
                     layerName = [layer name];
-                    log("\'" + layerName + "\' is using font: " + targetFont);
+                    log("[" + [page name] + " / " + artboardName + "]: " +
+                        "\"" + layerName + "\" is using \'" + targetFont + "\'");
                     instanceCount++;
                 }
             }
         }
     }
 
-    log("=============================================\n" +
-        "Scan completed successfully.");
+    log("=============================================");
 
-    alertMessage("There are " + instanceCount + " occurrences of this font.\n");
+    alertMessage("Scan completed successfully.\n\n" +
+        "There are " + instanceCount + " occurrences of this font.\n");
 
     // TODO: Add script for easily replacing the target font
 }
